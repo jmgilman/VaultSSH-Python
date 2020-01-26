@@ -7,7 +7,7 @@ import os
 
 from os.path import expanduser
 
-def authenticate(client):
+def authenticate(client, persist):
     success = False
 
     while not success:
@@ -17,55 +17,53 @@ def authenticate(client):
         try:
             result = client.auth.radius.login(username, password)
         except hvac.exceptions.InvalidRequest:
-            print("Invalid username/password")
+            click.echo("Invalid username/password")
             continue
 
-    success = True
+        success = True
 
-    # Set the token
-    os.environ['VAULT_TOKEN'] = result['auth']['client_token']
+    # Persist the token
+    if persist:
+        write_token(result['auth']['client_token'])
+
+def write_token(token):
+    user_home = expanduser("~")
+    token_file = os.path.join(user_home, '.vault-token')
 
     with open(token_file, 'w') as f:
         f.write(result['auth']['client_token'])
 
 @click.command()
-def main():
-    # Load environment variables
-    home = expanduser("~")
+@click.option('--persist/--no-persist', help='Whether to persist newly acquired tokens', default=True)
+@click.option("--token", help="The Vault token to authenticate with")
+@click.argument('ssh_public_key', type=click.File('r'))
+@click.argument('role', default='default', required=False)
+def main(ssh_public_key, role, persist, token):
+    # Instantiate client
+    client = hvac.Client()
 
-    print('Hello world!')
-
-    token = os.getenv('VAULT_TOKEN')
-    token_file = os.path.join(home, ".vault-token")
-
-    ssh_key = os.path.join(home, ".ssh/id_rsa.pub")
-    ssh_user = "josh"
-
-    # Load token file if not ENV is not set
-    if not token and os.path.isfile(token_file):
-        with open(token_file) as f:
-            token = f.read()
-
-    # Defaults to using VAULT_ADDR and VAULT_TOKEN
-    client = hvac.Client(token=token)
-
-    # Check if authenticated
+    # Check for authentication
+    client.token = token if token else client.token
     if not client.is_authenticated():
-        authenticate(client)
+        authenticate(client, persist)
 
     # Sign key
-    with open(ssh_key) as f:
-        public_key = f.read()
-
     try:
-        result = client.write("ssh/sign/" + ssh_user, public_key=public_key)
-    except hvac.exceptions.InvalidRequest:
-        print("Error signing SSH key. Do you have the right permissions?")
+        result = client.write("ssh/sign/" + role, public_key=ssh_public_key.read())
+    except hvac.exceptions.InvalidRequest as e:
+        click.echo("Error signing SSH key. Server returned: " + str(e))
         exit()
 
-    cert_path = "/home/josh/.ssh/id_rsa-cert.pub"
-    with open(cert_path, "w") as f:
+    # Build new file name
+    key_dir = os.path.dirname(ssh_public_key.name)
+    key_parts = os.path.splitext(os.path.basename(ssh_public_key.name))
+    new_name = key_parts[0] + '-cert' + key_parts[1]
+
+    signed_ssh_public_key = os.path.join(key_dir, new_name)
+    with open(signed_ssh_public_key, "w") as f:
         f.write(result['data']['signed_key'])
+
+    click.echo("Signed key saved to " + signed_ssh_public_key)
 
 if __name__ == '__main__':
     main()

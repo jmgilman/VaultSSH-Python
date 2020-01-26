@@ -11,6 +11,6 @@ setup(
     ],
     entry_points='''
         [console_scripts]
-        vssh=vaultssh.vaultssh:main
+        vaultssh=vaultssh.vaultssh:main
     ''',
 )
