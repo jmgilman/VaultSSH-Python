@@ -5,10 +5,12 @@ verify_ssl = true
 
 [dev-packages]
 pylint = "*"
+pipenv-setup = "*"
 
 [packages]
 hvac = "*"
 click = "*"
+e1839a8 = {path = "."}
 
 [requires]
 python_version = "3.6"
