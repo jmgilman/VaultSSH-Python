@@ -38,12 +38,10 @@ def main(ssh_public_key, role, persist, server, token):
         click.echo(f"Error signing SSH key. Server returned: {e}")
         exit()
 
-    # Build new file name
-    key_dir = os.path.dirname(ssh_public_key.name)
-    key_parts = os.path.splitext(os.path.basename(ssh_public_key.name))
-    new_name = key_parts[0] + '-cert' + key_parts[1]
+    # Build path to certificate file
+    signed_ssh_public_key = common.build_signed_key_path(ssh_public_key)
 
-    signed_ssh_public_key = os.path.join(key_dir, new_name)
+    # Write the signed certificate
     try:
         with open(signed_ssh_public_key, "w") as f:
             f.write(result['data']['signed_key'])
