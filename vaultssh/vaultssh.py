@@ -5,43 +5,16 @@ import getpass
 import hvac
 import os
 
-from os.path import expanduser
+import vaultssh.common as common
 
-def authenticate(client, persist):
-    success = False
-
-    while not success:
-        username = input("Username: ")
-        password = getpass.getpass("Password: ")
-
-        try:
-            result = client.auth.radius.login(username, password)
-        except hvac.exceptions.InvalidRequest:
-            click.echo("Invalid username/password")
-            continue
-
-        success = True
-
-    # Persist the token
-    if persist:
-        write_token(result['auth']['client_token'])
-
-def write_token(token):
-    user_home = expanduser("~")
-    token_file = os.path.join(user_home, '.vault-token')
-
-    try:
-        with open(token_file, 'w') as f:
-            f.write(result['auth']['client_token'])
-    except:
-        click.echo(f"Warning: failed to persist token at {token_file}")
 
 @click.command()
 @click.option('--persist/--no-persist', help='Whether to persist newly acquired tokens', default=True)
+@click.option('--server', help='The URL for the Vault server to query against')
 @click.option("--token", help="The Vault token to authenticate with")
 @click.argument('ssh_public_key', type=click.File('r'))
 @click.argument('role')
-def main(ssh_public_key, role, persist, token):
+def main(ssh_public_key, role, persist, server, token):
     """ Sign SSH_PUBLIC_KEY using the given Vault ROLE
 
     \b
@@ -53,12 +26,14 @@ def main(ssh_public_key, role, persist, token):
 
     # Check for authentication
     client.token = token if token else client.token
+    client.url = server if server else client.url
     if not client.is_authenticated():
-        authenticate(client, persist)
+        common.authenticate(client, persist)
 
     # Sign key
     try:
-        result = client.write("ssh/sign/" + role, public_key=ssh_public_key.read())
+        result = client.write("ssh/sign/" + role,
+                              public_key=ssh_public_key.read())
     except hvac.exceptions.InvalidRequest as e:
         click.echo(f"Error signing SSH key. Server returned: {e}")
         exit()
@@ -73,10 +48,8 @@ def main(ssh_public_key, role, persist, token):
         with open(signed_ssh_public_key, "w") as f:
             f.write(result['data']['signed_key'])
     except Exception as e:
-        click.echo("Failed to write signed public key to {signed_ssh_public_key}")
+        click.echo(
+            "Failed to write signed public key to {signed_ssh_public_key}")
         exit(1)
 
     click.echo("Signed key saved to " + signed_ssh_public_key)
-
-if __name__ == '__main__':
-    main()
