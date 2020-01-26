@@ -6,6 +6,27 @@ import os
 
 from os.path import expanduser
 
+def authenticate(client):
+    success = False
+
+    while not success:
+        username = input("Username: ")
+        password = getpass.getpass("Password: ")
+
+        try:
+            result = client.auth.radius.login(username, password)
+        except hvac.exceptions.InvalidRequest:
+            print("Invalid username/password")
+            continue
+
+    success = True
+
+    # Set the token
+    os.environ['VAULT_TOKEN'] = result['auth']['client_token']
+
+    with open(token_file, 'w') as f:
+        f.write(result['auth']['client_token'])
+
 def main():
     # Load environment variables
     #url = os.getenv('VAULT_ADDR')
@@ -27,20 +48,7 @@ def main():
 
     # Check if authenticated
     if not client.is_authenticated():
-        username = input("Username: ")
-        password = getpass.getpass("Password: ")
-
-        try:
-            result = client.auth.radius.login(username, password)
-        except hvac.exceptions.InvalidRequest:
-            print("Invalid username/password")
-            exit()
-
-        # Set the token
-        os.environ['VAULT_TOKEN'] = result['auth']['client_token']
-
-        with open(token_file, 'w') as f:
-            f.write(result['auth']['client_token'])
+        authenticate(client)
 
     # Sign key
     with open(ssh_key) as f:
