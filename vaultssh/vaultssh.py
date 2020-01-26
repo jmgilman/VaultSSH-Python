@@ -1,5 +1,6 @@
 """ Main file """
 
+import click
 import getpass
 import hvac
 import os
@@ -27,10 +28,12 @@ def authenticate(client):
     with open(token_file, 'w') as f:
         f.write(result['auth']['client_token'])
 
+@click.command()
 def main():
     # Load environment variables
-    #url = os.getenv('VAULT_ADDR')
     home = expanduser("~")
+
+    print('Hello world!')
 
     token = os.getenv('VAULT_TOKEN')
     token_file = os.path.join(home, ".vault-token")
@@ -64,6 +67,5 @@ def main():
     with open(cert_path, "w") as f:
         f.write(result['data']['signed_key'])
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
