@@ -30,8 +30,11 @@ def write_token(token):
     user_home = expanduser("~")
     token_file = os.path.join(user_home, '.vault-token')
 
-    with open(token_file, 'w') as f:
-        f.write(result['auth']['client_token'])
+    try:
+        with open(token_file, 'w') as f:
+            f.write(result['auth']['client_token'])
+    except:
+        click.echo(f"Warning: failed to persist token at {token_file}")
 
 @click.command()
 @click.option('--persist/--no-persist', help='Whether to persist newly acquired tokens', default=True)
@@ -51,7 +54,7 @@ def main(ssh_public_key, role, persist, token):
     try:
         result = client.write("ssh/sign/" + role, public_key=ssh_public_key.read())
     except hvac.exceptions.InvalidRequest as e:
-        click.echo("Error signing SSH key. Server returned: " + str(e))
+        click.echo(f"Error signing SSH key. Server returned: {e}")
         exit()
 
     # Build new file name
@@ -60,8 +63,12 @@ def main(ssh_public_key, role, persist, token):
     new_name = key_parts[0] + '-cert' + key_parts[1]
 
     signed_ssh_public_key = os.path.join(key_dir, new_name)
-    with open(signed_ssh_public_key, "w") as f:
-        f.write(result['data']['signed_key'])
+    try:
+        with open(signed_ssh_public_key, "w") as f:
+            f.write(result['data']['signed_key'])
+    except as e:
+        click.echo("Failed to write signed public key to {signed_ssh_public_key}")
+        exit(1)
 
     click.echo("Signed key saved to " + signed_ssh_public_key)
 
