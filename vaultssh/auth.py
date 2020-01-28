@@ -1,6 +1,7 @@
 import click
 import getpass
 import hvac
+import logging
 
 def radius(client):
     """ Attempts to authenticate against a Vault RADIUS backend 
@@ -24,10 +25,12 @@ def radius(client):
             result = client.auth.radius.login(username, password)
         except hvac.exceptions.InvalidRequest: # Thrown when a login fails
             click.echo("Invalid username/password")
+            logging.debug("Server threw InvalidRequest", exc_info=True)
             continue
 
         success = True
 
+    logging.info(f"Server returned token: {result['auth']['client_token']}")
     return result['auth']['client_token'] # Newly retrieved token
 
 AUTH_METHODS = {

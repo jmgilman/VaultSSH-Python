@@ -1,6 +1,7 @@
 import click
 import getpass
 import hvac
+import logging
 import os
 
 import vaultssh.auth as auth
@@ -29,7 +30,8 @@ def authenticate(client, persist):
             "Please select the authentication method to use: ")
 
     # Attempt to authenticate
-    token = auth.AUTH_METHODS[chosen_method](client)
+    logging.debug(f"Calling function for {chosen_method.lower()}")
+    token = auth.AUTH_METHODS[chosen_method.lower()](client)
 
     # Persist the token
     if persist:
@@ -69,8 +71,10 @@ def write_token(token):
     user_home = os.path.expanduser("~")
     token_file = os.path.join(user_home, '.vault-token')
 
+    logging.info("Persisting token to {token_file}")
+
     try:
         with open(token_file, 'w') as f:
             f.write(token)
     except:
-        click.echo(f"Warning: failed to persist token at {token_file}")
+        logging.warning(f"Failed to persist token at {token_file}", exc_info=True)

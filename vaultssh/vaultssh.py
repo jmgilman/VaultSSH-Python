@@ -3,10 +3,12 @@
 import click
 import getpass
 import hvac
+import logging
 import os
 
 import vaultssh.common as common
 
+logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.DEBUG)
 
 @click.command()
 @click.option('--persist/--no-persist', help='Whether to persist newly acquired tokens', default=True)
@@ -27,6 +29,10 @@ def main(ssh_public_key, role, persist, server, token):
     # Check for authentication
     client.token = token if token else client.token
     client.url = server if server else client.url
+
+    logging.debug(f"Token set to {client.token}")
+    logging.debug(f"URL set to {client.url}")
+
     if not client.is_authenticated():
         common.authenticate(client, persist)
 
@@ -34,20 +40,20 @@ def main(ssh_public_key, role, persist, server, token):
     try:
         result = client.write("ssh/sign/" + role,
                               public_key=ssh_public_key.read())
-    except hvac.exceptions.InvalidRequest as e:
-        click.echo(f"Error signing SSH key. Server returned: {e}")
-        exit()
+    except hvac.exceptions.InvalidRequest:
+        logging.fatal("Error signing SSH key", exc_info=True)
+        exit(1)
 
     # Build path to certificate file
     signed_ssh_public_key = common.build_signed_key_path(ssh_public_key)
 
     # Write the signed certificate
+    logging.info(f"Writing signed key to {signed_ssh_public_key}")
     try:
         with open(signed_ssh_public_key, "w") as f:
             f.write(result['data']['signed_key'])
-    except Exception as e:
-        click.echo(
-            "Failed to write signed public key to {signed_ssh_public_key}")
+    except Exception:
+        logging.fatal("Failed to write signed public key", exc_info=True)
         exit(1)
 
     click.echo("Signed key saved to " + signed_ssh_public_key)
