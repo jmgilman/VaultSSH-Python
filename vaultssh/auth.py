@@ -2,6 +2,39 @@ import click
 import getpass
 import hvac
 import logging
+import os
+
+import vaultssh.common as common
+
+def authenticate(client, persist):
+    """ Attempts to authenticate using the user provided authentication method
+
+    Args:
+        client (hvac.Client): The client to authenticate with
+        persist (bool): Whether or not to persist the new token
+
+    Returns:
+        None
+    """
+    # List possible authentication methods
+    click.echo("Available authentication types:")
+    methods = sorted([key.title() for key in AUTH_METHODS])
+    for method in methods:
+        click.echo(f"* {method}\n")
+
+    # Collect which one to use
+    chosen_method = ""
+    while chosen_method.lower() not in AUTH_METHODS:
+        chosen_method = input(
+            "Please select the authentication method to use: ")
+
+    # Attempt to authenticate
+    logging.debug(f"Calling function for {chosen_method.lower()}")
+    token = AUTH_METHODS[chosen_method.lower()](client)
+
+    # Persist the token
+    if persist:
+        common.write_token(token)
 
 def radius(client):
     """ Attempts to authenticate against a Vault RADIUS backend 

@@ -7,6 +7,7 @@ import logging
 import os
 
 import vaultssh.common as common
+import vaultssh.auth as auth
 
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.DEBUG)
 
@@ -34,7 +35,7 @@ def main(ssh_public_key, role, persist, server, token):
     logging.debug(f"URL set to {client.url}")
 
     if not client.is_authenticated():
-        common.authenticate(client, persist)
+        auth.authenticate(client, persist)
 
     # Sign key
     try:

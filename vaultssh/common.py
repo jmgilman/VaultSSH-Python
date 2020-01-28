@@ -4,39 +4,6 @@ import hvac
 import logging
 import os
 
-import vaultssh.auth as auth
-
-
-def authenticate(client, persist):
-    """ Attempts to authenticate using the user provided authentication method
-
-    Args:
-        client (hvac.Client): The client to authenticate with
-        persist (bool): Whether or not to persist the new token
-
-    Returns:
-        None
-    """
-    # List possible authentication methods
-    click.echo("Available authentication types:")
-    methods = sorted([key.title() for key in auth.AUTH_METHODS])
-    for method in methods:
-        click.echo(f"* {method}\n")
-
-    # Collect which one to use
-    chosen_method = ""
-    while chosen_method.lower() not in auth.AUTH_METHODS:
-        chosen_method = input(
-            "Please select the authentication method to use: ")
-
-    # Attempt to authenticate
-    logging.debug(f"Calling function for {chosen_method.lower()}")
-    token = auth.AUTH_METHODS[chosen_method.lower()](client)
-
-    # Persist the token
-    if persist:
-        write_token(token)
-
 
 def build_signed_key_path(key_file):
     """ Builds the correct path for a signed SSH public key
@@ -56,7 +23,6 @@ def build_signed_key_path(key_file):
     new_name = key_parts[0] + '-cert' + key_parts[1]
 
     return os.path.join(key_dir, new_name)
-
 
 def write_token(token):
     """ Persists a token by writing it to the default Vault token file
