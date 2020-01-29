@@ -9,21 +9,24 @@ import os
 import vaultssh.common as common
 import vaultssh.auth as auth
 
-logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.DEBUG)
 
 @click.command()
-@click.option('--persist/--no-persist', help='Whether to persist newly acquired tokens', default=True)
-@click.option('--server', help='The URL for the Vault server to query against')
-@click.option("--token", help="The Vault token to authenticate with")
-@click.argument('ssh_public_key', type=click.File('r'))
-@click.argument('role')
-def main(ssh_public_key, role, persist, server, token):
+@click.option("--persist/--no-persist", help="Whether to persist newly acquired tokens", default=True)
+@click.option("-s", "--server", help="The URL for the Vault server to query against")
+@click.option("-t", "--token", help="The Vault token to authenticate with")
+@click.option("-v", "--verbose", count=True)
+@click.argument("ssh_public_key", type=click.File('r'))
+@click.argument("role")
+def main(ssh_public_key, role, persist, server, token, verbose):
     """ Sign SSH_PUBLIC_KEY using the given Vault ROLE
 
     \b
     SSH_PUBLIC_KEY must be a file path to a valid SSH public key file
     ROLE must be a valid configured role in the Vault server
     """
+    # Configure logging
+    common.configure_logging(verbose)
+
     # Instantiate client
     client = hvac.Client()
 

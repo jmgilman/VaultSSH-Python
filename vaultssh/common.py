@@ -44,3 +44,24 @@ def write_token(token):
             f.write(token)
     except:
         logging.warning(f"Failed to persist token at {token_file}", exc_info=True)
+
+def configure_logging(verbosity):
+    """ Configures the root logger 
+    
+    Args:
+        verbosity (int): The level of verbosity specified by the user
+
+    Returns:
+        None
+    """
+    levels = [
+        logging.WARNING,
+        logging.INFO,
+        logging.DEBUG
+    ]
+
+    # Ignore values higher than 2
+    verbosity = 2 if verbosity >= 3 else verbosity
+
+    format = "%(levelname)s: %(message)s"
+    logging.basicConfig(format=format, level=levels[verbosity])
