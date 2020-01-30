@@ -16,7 +16,9 @@ import vaultssh.auth as auth
     help="Whether to persist newly acquired tokens",
     default=True,
 )
-@click.option("-s", "--server", help="The URL for the Vault server to query against")
+@click.option(
+    "-s", "--server", help="The URL for the Vault server to query against"
+)
 @click.option("-t", "--token", help="The Vault token to authenticate with")
 @click.option("-v", "--verbose", count=True)
 @click.argument("ssh_public_key", type=click.File("r"))
@@ -46,21 +48,12 @@ def main(ssh_public_key, role, persist, server, token, verbose):
 
     # Sign key
     try:
-        result = client.write("ssh/sign/" + role, public_key=ssh_public_key.read())
+        result = client.write(
+            "ssh/sign/" + role, public_key=ssh_public_key.read()
+        )
     except hvac.exceptions.InvalidRequest:
         logging.fatal("Error signing SSH key", exc_info=True)
         exit(1)
 
-    # Build path to certificate file
-    signed_ssh_public_key = common.build_signed_key_path(ssh_public_key)
-
     # Write the signed certificate
-    logging.info(f"Writing signed key to {signed_ssh_public_key}")
-    try:
-        with open(signed_ssh_public_key, "w") as f:
-            f.write(result["data"]["signed_key"])
-    except Exception:
-        logging.fatal("Failed to write signed public key", exc_info=True)
-        exit(1)
-
-    click.echo("Signed key saved to " + signed_ssh_public_key)
+    common.write_signed_key(ssh_public_key, result["data"]["signed_key"])

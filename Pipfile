@@ -9,6 +9,7 @@ pipenv-setup = "*"
 autopep8 = "*"
 pep8 = "*"
 bandit = "*"
+pytest = "*"
 
 [packages]
 hvac = "*"
