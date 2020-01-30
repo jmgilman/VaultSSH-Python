@@ -26,7 +26,9 @@ def authenticate(client, persist):
     # Collect which one to use
     chosen_method = ""
     while chosen_method.lower() not in AUTH_METHODS:
-        chosen_method = click.prompt("Please select the authentication method to use: ")
+        chosen_method = click.prompt(
+            "Please select the authentication method to use: "
+        )
 
     # Attempt to authenticate
     logging.debug(f"Calling function for {chosen_method.lower()}")
