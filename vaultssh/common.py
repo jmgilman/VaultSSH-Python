@@ -1,8 +1,9 @@
-import click
 import getpass
-import hvac
 import logging
 import os
+
+import click
+import hvac
 
 
 def configure_logging(verbosity):
@@ -36,8 +37,8 @@ def get_signed_key_path(key_file):
     Returns:
         A string file path to the correct SSH public key cert file
     """
-    key_dir = os.path.dirname(key_file.name)
-    key_parts = os.path.splitext(os.path.basename(key_file.name))
+    key_dir = os.path.dirname(key_file)
+    key_parts = os.path.splitext(os.path.basename(key_file))
     new_name = key_parts[0] + "-cert" + key_parts[1]
 
     return os.path.join(key_dir, new_name)
@@ -69,7 +70,7 @@ def write_signed_key(public_key_path, contents):
     Returns:
         None
     """
-    path = get_signed_key_path(public_key_path)
+    path = get_signed_key_path(public_key_path.name)
 
     logging.info(f"Writing signed key to {path}")
     try:

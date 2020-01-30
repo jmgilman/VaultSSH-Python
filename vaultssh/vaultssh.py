@@ -1,13 +1,13 @@
 """ Main file """
 
-import click
 import getpass
-import hvac
 import logging
 import os
 
-import vaultssh.common as common
+import click
+import hvac
 import vaultssh.auth as auth
+import vaultssh.common as common
 
 
 @click.command()
