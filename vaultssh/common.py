@@ -20,9 +20,10 @@ def build_signed_key_path(key_file):
     """
     key_dir = os.path.dirname(key_file.name)
     key_parts = os.path.splitext(os.path.basename(key_file.name))
-    new_name = key_parts[0] + '-cert' + key_parts[1]
+    new_name = key_parts[0] + "-cert" + key_parts[1]
 
     return os.path.join(key_dir, new_name)
+
 
 def write_token(token):
     """ Persists a token by writing it to the default Vault token file
@@ -35,15 +36,16 @@ def write_token(token):
     """
     # Default location as defined by Vault is ~/.vault-token
     user_home = os.path.expanduser("~")
-    token_file = os.path.join(user_home, '.vault-token')
+    token_file = os.path.join(user_home, ".vault-token")
 
     logging.info("Persisting token to {token_file}")
 
     try:
-        with open(token_file, 'w') as f:
+        with open(token_file, "w") as f:
             f.write(token)
     except:
         logging.warning(f"Failed to persist token at {token_file}", exc_info=True)
+
 
 def configure_logging(verbosity):
     """ Configures the root logger 
@@ -54,11 +56,7 @@ def configure_logging(verbosity):
     Returns:
         None
     """
-    levels = [
-        logging.WARNING,
-        logging.INFO,
-        logging.DEBUG
-    ]
+    levels = [logging.WARNING, logging.INFO, logging.DEBUG]
 
     # Ignore values higher than 2
     verbosity = 2 if verbosity >= 3 else verbosity

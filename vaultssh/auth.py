@@ -6,6 +6,7 @@ import os
 
 import vaultssh.common as common
 
+
 def authenticate(client, persist):
     """ Attempts to authenticate using the user provided authentication method
 
@@ -25,8 +26,7 @@ def authenticate(client, persist):
     # Collect which one to use
     chosen_method = ""
     while chosen_method.lower() not in AUTH_METHODS:
-        chosen_method = input(
-            "Please select the authentication method to use: ")
+        chosen_method = click.prompt("Please select the authentication method to use: ")
 
     # Attempt to authenticate
     logging.debug(f"Calling function for {chosen_method.lower()}")
@@ -35,6 +35,7 @@ def authenticate(client, persist):
     # Persist the token
     if persist:
         common.write_token(token)
+
 
 def radius(client):
     """ Attempts to authenticate against a Vault RADIUS backend 
@@ -51,12 +52,12 @@ def radius(client):
     # Attempt to login using provided username/password
     while not success:
         click.echo("Please enter your RADIUS username and password:")
-        username = input("Username: ")
+        username = click.prompt("Username: ")
         password = getpass.getpass("Password: ")
 
         try:
             result = client.auth.radius.login(username, password)
-        except hvac.exceptions.InvalidRequest: # Thrown when a login fails
+        except hvac.exceptions.InvalidRequest:  # Thrown when a login fails
             click.echo("Invalid username/password")
             logging.debug("Server threw InvalidRequest", exc_info=True)
             continue
@@ -64,7 +65,8 @@ def radius(client):
         success = True
 
     logging.info(f"Server returned token: {result['auth']['client_token']}")
-    return result['auth']['client_token'] # Newly retrieved token
+    return result["auth"]["client_token"]  # Newly retrieved token
+
 
 AUTH_METHODS = {
     "radius": radius,
