@@ -30,9 +30,5 @@ setup(
         "urllib3==1.25.8",
     ],
     dependency_links=[],
-    entry_points={
-        "console_scripts": [
-            "vaultssh=vaultssh.vaultssh:main",
-        ]
-    },
+    entry_points={"console_scripts": ["vaultssh=vaultssh.vaultssh:main"]},
 )
