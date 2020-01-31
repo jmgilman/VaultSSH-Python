@@ -12,6 +12,8 @@ bandit = "*"
 pytest = "*"
 pytest-cov = "*"
 pytest-mock = "*"
+twine = "*"
+keyring = "*"
 
 [packages]
 hvac = "*"

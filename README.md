@@ -5,8 +5,6 @@ VaultSSH is a simple command line tool written in Python which automates the pro
 
 This tool assumes that your Vault environment has been properly configured for signing SSH keys. Hashicorp provides extensive documentation along with examples on how to perform this configuration [in their docs](https://www.vaultproject.io/docs/secrets/ssh/signed-ssh-certificates/).
 
-![](header.png)
-
 ## Installation
 
 ```sh
@@ -46,8 +44,8 @@ pipenv install --dev
 
 ## Release History
 
-* 0.1.0
-    * Initial prototype
+* 1.0.0
+    * Initial release
 
 ## Meta
 
