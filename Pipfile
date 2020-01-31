@@ -10,11 +10,12 @@ autopep8 = "*"
 pep8 = "*"
 bandit = "*"
 pytest = "*"
+pytest-cov = "*"
+pytest-mock = "*"
 
 [packages]
 hvac = "*"
 click = "*"
-e1839a8 = {path = "."}
 
 [requires]
 python_version = "3.6"

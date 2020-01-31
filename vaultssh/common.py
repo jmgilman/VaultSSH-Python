@@ -32,7 +32,7 @@ def get_signed_key_path(key_file):
     default, SSH expects the file to be named as: <pub_key_name>-cert.pub
 
     Args:
-        key_file (file): The SSH public key file to base the cert file off of
+        key_file (str): The SSH public key file to base the cert file off of
 
     Returns:
         A string file path to the correct SSH public key cert file
@@ -70,7 +70,7 @@ def write_signed_key(public_key_path, contents):
     Returns:
         None
     """
-    path = get_signed_key_path(public_key_path.name)
+    path = get_signed_key_path(public_key_path)
 
     logging.info(f"Writing signed key to {path}")
     try:

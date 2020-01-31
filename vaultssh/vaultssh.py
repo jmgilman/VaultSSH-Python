@@ -36,9 +36,17 @@ def main(ssh_public_key, role, persist, server, token, verbose):
     # Instantiate client
     client = hvac.Client()
 
+    # Check for url
+    client.url = server if server else client.url
+    if not client.url:
+        logging.info("No url address to Vault server supplied")
+        click.echo(
+            "No URL found - please set VAULT_ADDR environment variable or manually pass a server url"
+        )
+        exit(1)
+
     # Check for authentication
     client.token = token if token else client.token
-    client.url = server if server else client.url
 
     logging.debug(f"Token set to {client.token}")
     logging.debug(f"URL set to {client.url}")
@@ -56,4 +64,4 @@ def main(ssh_public_key, role, persist, server, token, verbose):
         exit(1)
 
     # Write the signed certificate
-    common.write_signed_key(ssh_public_key, result["data"]["signed_key"])
+    common.write_signed_key(ssh_public_key.name, result["data"]["signed_key"])
