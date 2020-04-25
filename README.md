@@ -1,6 +1,8 @@
 # VaultSSH
 > CLI tool for signing SSH public keys using the Vault SSH endpoint
 
+**NOTE: This has been deprecated in favor of a pure Go version of the client: https://github.com/jmgilman/vssh***
+
 VaultSSH is a simple command line tool written in Python which automates the process of signing SSH public keys using the [Hashicorp Vault](https://www.vaultproject.io/) SSH backend. In environments which have configured Vault as a trusted CA and use it to issue signed keys for authenticating against SSH servers, this tool provides a simple wrapper which handles all the backend communication and produces a signed public key ready for the end-user to authenticate with.
 
 This tool assumes that your Vault environment has been properly configured for signing SSH keys. Hashicorp provides extensive documentation along with examples on how to perform this configuration [in their docs](https://www.vaultproject.io/docs/secrets/ssh/signed-ssh-certificates/).
