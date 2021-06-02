@@ -27,7 +27,7 @@ setup(
         "idna==2.8",
         "requests==2.22.0",
         "six==1.14.0",
-        "urllib3==1.25.8",
+        "urllib3==1.26.5",
     ],
     dependency_links=[],
     entry_points={"console_scripts": ["vaultssh=vaultssh.vaultssh:main"]},
