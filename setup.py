@@ -20,7 +20,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
-        "certifi==2019.11.28",
+        "certifi==2022.12.7",
         "chardet==3.0.4",
         "click==7.0",
         "hvac==0.9.6",
